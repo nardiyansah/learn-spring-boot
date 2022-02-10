@@ -7,3 +7,10 @@ mvnw spring-boot:run
 ```shell
 mvnw test
 ```
+
+# How to check code coverage
+```shell
+mvnw test
+mvnw jacoco:report
+```
+see report files in `/target/site/jacoco`

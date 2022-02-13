@@ -1,10 +1,15 @@
 package learn.spring.boot.nardiyansah.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
+@Getter
+@Setter
 public class Book {
 
     @Id
@@ -17,35 +22,4 @@ public class Book {
 
     private Integer publishedYear;
 
-    public Integer getId() {
-        return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public Integer getPublishedYear() {
-        return publishedYear;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public void setPublishedYear(Integer publishedYear) {
-        this.publishedYear = publishedYear;
-    }
 }

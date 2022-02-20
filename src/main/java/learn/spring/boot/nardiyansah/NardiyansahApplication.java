@@ -2,6 +2,7 @@ package learn.spring.boot.nardiyansah;
 
 import learn.spring.boot.nardiyansah.configuration.StorageProperties;
 import learn.spring.boot.nardiyansah.domain.Quote;
+import learn.spring.boot.nardiyansah.receiver.Receiver;
 import learn.spring.boot.nardiyansah.service.StorageService;
 import org.joda.time.LocalTime;
 import org.slf4j.Logger;
@@ -11,7 +12,13 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.listener.PatternTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
@@ -20,8 +27,20 @@ public class NardiyansahApplication {
 
 	private static final Logger log = LoggerFactory.getLogger(NardiyansahApplication.class);
 
-	public static void main(String[] args) {
-		SpringApplication.run(NardiyansahApplication.class, args);
+	public static void main(String[] args) throws InterruptedException {
+		ApplicationContext ctx = SpringApplication.run(NardiyansahApplication.class, args);
+
+//		StringRedisTemplate template = ctx.getBean(StringRedisTemplate.class);
+//		Receiver receiver = ctx.getBean(Receiver.class);
+//
+//		while (receiver.getCount() == 0) {
+//			log.info("Sending message");
+//			try {
+//				template.convertAndSend("chat", "Hello from Redis");
+//			} catch (Exception e) {
+//				log.error("cannot send message to redis, maybe you forgot to turn on redis server");
+//			}
+//		}
 	}
 
 	@Bean
@@ -52,4 +71,30 @@ public class NardiyansahApplication {
 		};
 	}
 
+	@Bean
+	RedisMessageListenerContainer redisMessageListenerContainer(
+			RedisConnectionFactory connectionFactory,
+			MessageListenerAdapter listenerAdapter
+	) {
+		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+		container.setConnectionFactory(connectionFactory);
+		container.addMessageListener(listenerAdapter, new PatternTopic("chat"));
+
+		return  container;
+	}
+
+	@Bean
+	MessageListenerAdapter listenerAdapter(Receiver receiver) {
+		return new MessageListenerAdapter(receiver, "receiveMessage");
+	}
+
+	@Bean
+	Receiver receiver() {
+		return new Receiver();
+	}
+
+	@Bean
+	StringRedisTemplate template(RedisConnectionFactory connectionFactory) {
+		return new StringRedisTemplate(connectionFactory);
+	}
 }
